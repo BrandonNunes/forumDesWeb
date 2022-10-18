@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<style>
+    .content {
+        width: 100%;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .resultado {
+        display: none;
+    }
+</style>
+<body>
+    <div class="content" >
+        <label for="mes">
+            Insira o mes do seu aniversario:
+        </label>
+            <input type="month" id="mes"  />
+
+        <label for="dia">
+            Insira o dia do seu aniversario:<br>
+        </label>
+            <input type="number" id="dia"  />
+
+        <button onclick="enviar()" >Buscar</button>
+        <div class="resultado" >
+            <h5>Seu signo é: <span id="signo" ></span></h5>
+            <p id="descricao" ></p>
+
+        </div>
+    </div>
+
+<script>
+    var mesValue = document.querySelector('#mes')
+    var diaValue = document.querySelector('#dia')
+    var resultado = document.querySelector('.resultado')
+    var signo = document.querySelector('#signo')
+    var descricao = document.querySelector('#descricao')
+    let list = [];
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            myFunction(this);
+        }
+    };
+    xhttp.open("GET", "signos.xml", true);
+    xhttp.send();
+
+    function myFunction(xml) {
+        var x, xmlDoc, txt;
+        xmlDoc = xml.responseXML;
+        let nodeList = xmlDoc.querySelectorAll('signo')
+        nodeList.forEach((el)=> {
+            let newObj = {
+                dataInicio: "",
+                dataFim: "",
+                signoNome: "",
+                descricao: "",
+            }
+            newObj.dataInicio = el.getElementsByTagName('dataInicio')[0].innerHTML
+            newObj.dataFim = el.getElementsByTagName('dataFim')[0].innerHTML
+            newObj.signoNome = el.getElementsByTagName('signoNome')[0].innerHTML
+            newObj.descricao = el.getElementsByTagName('descricao')[0].innerHTML
+            list.push(newObj)
+        })
+    }
+
+    function enviar() {
+        let data = `${diaValue.value}/${mesValue.value.split('-')[1]}`
+        let filterList = list.filter((sig) => (
+            new Date((sig.dataInicio+'/2022').split('/').reverse().join('/')) <= new Date((data+'/2022').split('/').reverse().join('/')) &&
+            new Date((sig.dataFim+'/2022').split('/').reverse().join('/')) >= new Date((data+'/2022').split('/').reverse().join('/'))
+        ))
+        if (filterList[0]){
+            signo.innerHTML = filterList[0].signoNome
+            descricao.innerHTML = filterList[0].descricao
+            resultado.style.display = 'block'
+        }
+    }
+</script>
+</body>
+
+</html>
